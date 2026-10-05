@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps Tools — Resumo para Prova</title>
+<style>
+  :root {
+    --bg: #0f172a; --panel: #1e293b; --accent: #38bdf8; --accent2: #818cf8;
+    --text: #e2e8f0; --muted: #94a3b8; --code-bg: #0b1220; --border: #334155;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  header { background: linear-gradient(135deg, #1e3a8a, #6d28d9); padding: 3rem 1rem; text-align: center; }
+  header h1 { font-size: 2.4rem; }
+  header p { color: #cbd5e1; margin-top: .5rem; }
+  nav { position: sticky; top: 0; background: var(--panel); border-bottom: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: .5rem; padding: .75rem; justify-content: center; z-index: 10; }
+  nav a { color: var(--muted); text-decoration: none; padding: .35rem .8rem; border-radius: 999px; font-size: .9rem; }
+  nav a:hover { background: var(--border); color: var(--text); }
+  main { max-width: 900px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+  section { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 1.8rem; margin-bottom: 1.5rem; }
+  h2 { color: var(--accent); margin-bottom: 1rem; border-bottom: 2px solid var(--border); padding-bottom: .4rem; }
+  h3 { color: var(--accent2); margin: 1.2rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul { margin: .5rem 0 1rem 1.4rem; }
+  li { margin-bottom: .3rem; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .95rem; }
+  th, td { border: 1px solid var(--border); padding: .6rem .8rem; text-align: left; }
+  th { background: #0f172a; color: var(--accent); }
+  td { background: #182235; }
+  code { background: var(--code-bg); padding: .15rem .4rem; border-radius: 5px; font-size: .9em; color: #7dd3fc; }
+  pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 1rem 0; }
+  pre code { color: #a5f3fc; padding: 0; }
+  .callout { background: #172554; border-left: 4px solid var(--accent); padding: 1rem 1.2rem; border-radius: 6px; margin: 1rem 0; }
+  .callout.warn { background: #451a03; border-color: #f59e0b; }
+  .tag { display: inline-block; background: #312e81; color: #c7d2fe; border-radius: 999px; padding: .1rem .7rem; font-size: .8rem; margin-right: .3rem; }
+  footer { text-align: center; color: var(--muted); padding: 2rem; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🚀 DevOps Tools — Resumo para Prova</h1>
+  <p>Do git push ao software em produção: DevOps, Git, Docker e CI/CD explicados do zero.</p>
+</header>
+
+<nav>
+  <a href="#devops">DevOps</a>
+  <a href="#git">Git</a>
+  <a href="#gitflow">Git Flow</a>
+  <a href="#docker">Docker</a>
+  <a href="#dockerfile">Dockerfile</a>
+  <a href="#volumes">Volumes & Redes</a>
+  <a href="#boaspraticas">Boas Práticas</a>
+  <a href="#cicd">CI/CD</a>
+  <a href="#actions">GitHub Actions × GitLab CI</a>
+</nav>
+
+<main>
+
+<section id="devops">
+  <h2>1. O que é DevOps?</h2>
+  <p><strong>DevOps = Desenvolvimento + Operações.</strong> É uma abordagem que aproxima quem <em>constrói</em> o software (dev) de quem <em>coloca em produção e mantém</em> (ops), usando cultura, processos, ferramentas e muita automação para entregar software de forma mais <strong>rápida, segura e confiável</strong>.</p>
+
+  <h3>O problema dos "silos"</h3>
+  <p>Antes do DevOps, cada equipe trabalhava isolada, com objetivos, processos, ferramentas e indicadores diferentes. O resultado clássico era a disputa de culpas:</p>
+  <div class="callout warn">
+    👨‍💻 Dev: "Na minha máquina funciona."<br>
+    🖥️ Operações: "Em produção não funciona."<br>
+    🧪 QA: "Nos testes funcionava."<br>
+    🔒 Segurança: "Essa configuração não pode ir para produção."
+  </div>
+  <p>DevOps ataca a causa: o <strong>processo</strong>, não as pessoas. A responsabilidade pelo resultado passa a ser compartilhada por todo o time.</p>
+
+  <h3>DevOps NÃO é...</h3>
+  <p>
+    <span class="tag">❌ só Docker</span>
+    <span class="tag">❌ só Kubernetes</span>
+    <span class="tag">❌ só CI/CD</span>
+    <span class="tag">❌ só Cloud</span>
+    <span class="tag">❌ um cargo</span>
+    <span class="tag">❌ uma ferramenta</span>
+  </p>
+  <p>DevOps é uma <strong>mudança de mentalidade</strong>: começa com a pergunta "qual problema queremos resolver?" e só depois escolhe processo → automação → ferramenta → métrica → melhoria.</p>
+
+  <h3>O ciclo contínuo</h3>
+  <p>PLAN → CODE → BUILD → TEST → RELEASE → DEPLOY → OPERATE → MONITOR → FEEDBACK → (volta ao PLAN). O software nunca está "terminado" — está em evolução constante.</p>
+
+  <h3>Quem faz o quê</h3>
+  <table>
+    <tr><th>Área</th><th>Responsabilidade</th><th>Exemplos de ferramentas</th></tr>
+    <tr><td>DEV</td><td>escrever código, corrigir bugs, evoluir funcionalidades</td><td>Git, GitHub, VS Code, frameworks</td></tr>
+    <tr><td>QA</td><td>garantir qualidade: testes funcionais, regressão, desempenho</td><td>Jest, PHPUnit, JUnit</td></tr>
+    <tr><td>OPS</td><td>servidores, redes, banco, cloud, disponibilidade, monitoramento</td><td>Docker, Kubernetes, Ansible, Terraform</td></tr>
+    <tr><td>SECURITY</td><td>segurança presente desde o início (DevSecOps / Security by Design)</td><td>SonarQube, Trivy</td></tr>
+  </table>
+</section>
+
+<section id="git">
+  <h2>2. Git — Controle de Versão</h2>
+  <p><strong>Git</strong> é um sistema de controle de versão <strong>distribuído</strong>: cada desenvolvedor tem uma cópia local completa do repositório e do histórico. Isso permite trabalhar offline e colaborar com segurança.</p>
+  <p><strong>Git ≠ GitHub.</strong> Git é a ferramenta; GitHub (ou GitLab) é a plataforma que hospeda o repositório e adiciona colaboração (Pull Requests, Code Review, Issues, CI/CD).</p>
+
+  <h3>As três áreas do Git</h3>
+  <table>
+    <tr><th>Área</th><th>O que é</th><th>Comando</th></tr>
+    <tr><td>Working Directory</td><td>a pasta onde você trabalha nos arquivos</td><td><code>git status</code></td></tr>
+    <tr><td>Staging Area</td><td>área de preparação do próximo commit</td><td><code>git add arquivo</code> / <code>git add .</code></td></tr>
+    <tr><td>Repository</td><td>histórico oficial versionado</td><td><code>git commit -m "mensagem"</code></td></tr>
+  </table>
+  <p>O remoto (GitHub) é sincronizado com <code>git push</code> (envia) e <code>git pull</code> (recebe). Para baixar um projeto novo: <code>git clone url</code>.</p>
+
+  <h3>Commit = checkpoint</h3>
+  <p>Cada commit é um "ponto salvo" do projeto. Bons commits têm mensagens claras e objetivas:</p>
+  <ul>
+    <li>❌ <code>git commit -m "alterações"</code></li>
+    <li>✅ <code>git commit -m "Corrige validação de senha no login"</code></li>
+  </ul>
+
+  <h3>Branches, merge e conflitos</h3>
+  <p><strong>Branch</strong> é uma linha independente de desenvolvimento. Você cria uma branch para uma funcionalidade sem mexer no código principal:</p>
+  <pre><code>git switch -c feature/login   # cria e muda para a nova branch</code></pre>
+  <p>Quando termina, integra de volta com <code>git merge feature/login</code>. Se duas pessoas editaram a mesma linha, ocorre um <strong>merge conflict</strong> — o Git pausa e pede para você escolher a versão correta.</p>
+
+  <h3>Pull Request (PR)</h3>
+  <p>Fluxo colaborativo: <strong>feature → push → Pull Request → Code Review → aprovação → merge → main</strong>. O PR permite revisar o código, comentar e rodar testes automáticos antes de integrar.</p>
+
+  <h3>Comandos essenciais</h3>
+  <pre><code>git status      # situação dos arquivos
+git add .       # prepara alterações
+git commit -m "msg"
+git log         # histórico
+git switch -c feature/x
+git merge feature/x
+git push / git pull / git clone url</code></pre>
+</section>
+
+<section id="gitflow">
+  <h2>3. Git Flow — Organizando o trabalho em equipe</h2>
+  <p>Git Flow é uma <strong>estratégia de branches</strong> (não uma funcionalidade obrigatória do Git). Cada tipo de branch tem uma finalidade clara, separando desenvolvimento, releases e correções urgentes.</p>
+
+  <table>
+    <tr><th>Branch</th><th>Finalidade</th></tr>
+    <tr><td><code>main</code></td><td>código estável, pronto para produção. Nunca desenvolva direto nela.</td></tr>
+    <tr><td><code>develop</code></td><td>linha de integração: onde as features prontas se juntam.</td></tr>
+    <tr><td><code>feature/*</code></td><td>novas funcionalidades, partindo de <code>develop</code>. Ex.: <code>feature/login</code></td></tr>
+    <tr><td><code>release/*</code></td><td>preparação de uma versão: testes finais e ajustes, sem parar o desenvolvimento. Ex.: <code>release/1.2.0</code></td></tr>
+    <tr><td><code>hotfix/*</code></td><td>correção urgente de bug em produção, partindo de <code>main</code>.</td></tr>
+  </table>
+
+  <h3>Os três fluxos</h3>
+  <p><strong>Feature:</strong> <code>develop → feature/login → commits → push → PR → review → merge em develop</code></p>
+  <p><strong>Release:</strong> <code>develop → release/1.2.0 → testes finais → merge em main e em develop → tag v1.2.0</code></p>
+  <p><strong>Hotfix:</strong> <code>main → hotfix/corrige-login → correção + testes → merge em main e em develop → nova tag</code></p>
+
+  <div class="callout">
+    💡 <strong>Tags</strong> marcam versões específicas (<code>v1.0.0</code>, <code>v1.2.0</code>) para rastrear exatamente qual código foi publicado.
+  </div>
+
+  <h3>Erros comuns a evitar</h3>
+  <ul>
+    <li>Trabalhar diretamente em <code>main</code></li>
+    <li>Branches gigantes que duram semanas / commits sem significado</li>
+    <li>Merge sem revisão e sem testes</li>
+    <li>Colocar senhas ou tokens no repositório (nunca!)</li>
+  </ul>
+</section>
+
+<section id="docker">
+  <h2>4. Docker — Containerização</h2>
+  <p>Usuários reclamavam: "na minha máquina funciona". <strong>Containers</strong> resolvem isso empacotando a aplicação <em>com todas as dependências</em> num ambiente isolado, leve e reproduzível. Uma imagem pode ser executada em qualquer máquina com Docker e se comporta igual.</p>
+
+  <h3>Container × Máquina Virtual</h3>
+  <p>Uma VM carrega um sistema operacional inteiro; um container compartilha o <strong>kernel do host</strong>, por isso inicia em segundos e usa poucos MB. Containers são <strong>descartáveis</strong>: você destrói e recria sem apego.</p>
+
+  <h3>Conceitos principais</h3>
+  <table>
+    <tr><th>Conceito</th><th>Explicação</th></tr>
+    <tr><td>Imagem</td><td>"receita" imutável da aplicação (código + dependências + config).</td></tr>
+    <tr><td>Container</td><td>instância em execução de uma imagem.</td></tr>
+    <tr><td>Docker Engine</td><td>Docker Client (você) + Docker Daemon (executa tudo).</td></tr>
+    <tr><td>Registry</td><td>servidor que armazena imagens (Docker Hub = público; ECR/GHCR = privados).</td></tr>
+  </table>
+
+  <h3>O fluxo de trabalho</h3>
+  <p>Código → <code>Dockerfile</code> → <code>docker build</code> → <strong>Imagem</strong> → <code>docker run</code> → <strong>Container</strong> → <code>docker push</code> → Registry.</p>
+
+  <h3>Comandos do dia a dia</h3>
+  <pre><code>docker --version && docker run hello-world   # testa a instalação
+docker images                                # lista imagens
+docker ps / docker ps -a                     # contêineres ativos / todos
+docker run -d --name web -p 8080:80 nginx    # sobe o Nginx na porta 8080
+docker logs web                              # logs
+docker stop web && docker rm web             # para e remove</code></pre>
+</section>
+
+<section id="dockerfile">
+  <h2>5. Dockerfile — Receita da imagem</h2>
+  <p>O Dockerfile é um arquivo de texto com instruções para construir a imagem. Cada instrução gera uma <strong>camada</strong> (layer). A ordem importa!</p>
+
+  <pre><code>FROM node:22-alpine      # 1. imagem base
+WORKDIR /app             # 2. diretório de trabalho dentro da imagem
+COPY package*.json ./    # 3. copia só o necessário p/ cache
+RUN npm install          # 4. instala dependências (no BUILD)
+COPY . .                 # 5. copia o restante do código
+ENV PORT=3000            # 6. variável de ambiente
+EXPOSE 3000              # 7. documenta a porta
+CMD ["npm", "start"]       # 8. comando padrão ao iniciar</code></pre>
+
+  <table>
+    <tr><th>Instrução</th><th>O que faz</th></tr>
+    <tr><td><code>FROM</code></td><td>define a imagem base (ex.: <code>node:22</code>, <code>python:3.12-slim</code>, <code>nginx:alpine</code>)</td></tr>
+    <tr><td><code>WORKDIR</code></td><td>diretório de trabalho; comandos seguintes rodam ali (criado se não existir)</td></tr>
+    <tr><td><code>COPY</code></td><td>copia arquivos do contexto de build para dentro da imagem</td></tr>
+    <tr><td><code>RUN</code></td><td>executa comandos <strong>durante o build</strong> (instalar deps, etc.)</td></tr>
+    <tr><td><code>EXPOSE</code></td><td>documenta a porta usada — <strong>não publica</strong>! Publicar é com <code>-p</code></td></tr>
+    <tr><td><code>CMD</code></td><td>comando padrão, facilmente substituível no <code>docker run</code></td></tr>
+    <tr><td><code>ENTRYPOINT</code></td><td>executável principal da imagem; combinável com CMD (args padrão)</td></tr>
+    <tr><td><code>ENV</code></td><td>variável de ambiente embutida na imagem</td></tr>
+  </table>
+
+  <div class="callout warn">
+    ⚠️ <code>RUN</code> acontece no <em>build</em>; <code>CMD</code> acontece na <em>execução</em> do container. <code>EXPOSE 3000</code> sozinho não abre a porta — precisa de <code>docker run -p 8080:3000 app</code>.
+  </div>
+
+  <h3>Build e tag</h3>
+  <pre><code>docker build -t minha-app:1.0 .
+docker run -d --name app -p 3000:3000 minha-app:1.0
+docker tag minha-app:1.0 usuario/minha-app:1.0
+docker push usuario/minha-app:1.0</code></pre>
+  <p>Prefira tags explícitas (<code>:1.0</code>) em vez de depender de <code>latest</code> em produção. Variáveis de app como <code>PORT</code>, <code>DB_HOST</code> são passadas com <code>-e</code> ou <code>--env-file</code> — <strong>nunca</strong> senhas direto no Dockerfile.</p>
+</section>
+
+<section id="volumes">
+  <h2>6. Volumes, Redes e Docker Compose</h2>
+
+  <h3>Por que persistência?</h3>
+  <p>Containers são descartáveis: se você remover um container, os dados gravados <em>dentro dele</em> se perdem. Um banco de dados não pode funcionar assim.</p>
+
+  <table>
+    <tr><th></th><th>Volume Docker</th><th>Bind Mount</th></tr>
+    <tr><td>Quem gerencia</td><td>o próprio Docker</td><td>você, via caminho do host</td></tr>
+    <tr><td>Uso ideal</td><td>dados persistentes / produção</td><td>código-fonte em desenvolvimento</td></tr>
+    <tr><td>Exemplo</td><td><code>-v dados_mysql:/var/lib/mysql</code></td><td><code>-v $(pwd):/app</code></td></tr>
+  </table>
+  <p>Com bind mount, o que você edita no notebook aparece <em>na hora</em> dentro do container — perfeito para desenvolvimento com hot reload.</p>
+
+  <h3>Redes — como contêineres conversam</h3>
+  <p>Contêineres na mesma rede Docker se comunicam pelo <strong>nome do serviço</strong> (DNS interno), não por IP e nem por <code>localhost</code>:</p>
+  <pre><code># dentro da API, o banco é encontrado por:
+DB_HOST=database</code></pre>
+
+  <h3>Docker Compose — vários serviços, um arquivo</h3>
+  <p>Em vez de subir cada container na mão, você declara tudo em um <code>docker-compose.yml</code>:</p>
+  <pre><code>services:
+  api:
+    build: .
+    ports: ["8080:8080"]
+    environment:
+      DB_HOST: database
+    depends_on:
+      - database
+  database:
+    image: mysql:8
+    volumes:
+      - mysql_data:/var/lib/mysql
+volumes:
+  mysql_data:</code></pre>
+
+  <pre><code>docker compose up -d          # sobe tudo em background
+docker compose ps             # lista serviços
+docker compose logs -f        # acompanha logs
+docker compose down           # para e remove (add -v p/ apagar volumes)
+docker compose up -d --build  # reconstrói e sobe</code></pre>
+
+  <div class="callout">
+    💡 <code>depends_on</code> só controla a <em>ordem</em> em que os serviços sobem — não garante que o banco esteja pronto para conexões. Por isso existem <em>healthchecks</em> e <em>retry</em>.
+  </div>
+</section>
+
+<section id="boaspraticas">
+  <h2>7. Boas Práticas e Multi-stage Builds</h2>
+
+  <h3>Checklist de uma boa imagem</h3>
+  <ul>
+    <li>✅ Imagem base adequada e com versão específica (<code>node:22-alpine</code>)</li>
+    <li>✅ Sem segredos na imagem (nada de <code>ENV DB_PASSWORD=...</code> ou <code>COPY .env .</code>)</li>
+    <li>✅ <code>.dockerignore</code> configurado (<code>node_modules</code>, <code>.git</code>, <code>.env</code>, <code>dist</code>, logs)</li>
+    <li>✅ Cache aproveitado: dependências antes do código</li>
+    <li>✅ Usuário não-root quando possível</li>
+    <li>✅ Multi-stage build quando aplicável</li>
+  </ul>
+
+  <h3>Cache do Docker</h3>
+  <p>O Docker reconstrói camada por camada e reutiliza o que não mudou. A ordem das instruções define o que é cacheado:</p>
+  <pre><code># ❌ ruim: mudou o código, reinstala tudo
+COPY . .
+RUN npm install
+
+# ✅ bom: só o código mudou → npm install fica em cache
+COPY package*.json ./
+RUN npm ci
+COPY . .</code></pre>
+
+  <h3>Multi-stage build</h3>
+  <p>Problema: para <em>construir</em> uma aplicação Vue/React você precisa de Node, npm e ferramentas pesadas — mas em <em>produção</em> só precisa do HTML/JS/CSS gerado. Multi-stage separa as fases com múltiplos <code>FROM</code>:</p>
+  <pre><code># Stage 1 — build (pesado)
+FROM node:22-alpine AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+# Stage 2 — produção (leve)
+FROM nginx:alpine
+COPY --from=build /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]</code></pre>
+  <p>Resultado: a imagem final tem <strong>somente Nginx + dist/</strong>. Antes × depois:</p>
+  <table>
+    <tr><th>Sem multi-stage</th><th>Com multi-stage</th></tr>
+    <tr><td>Node + npm + Vite + node_modules + código-fonte + dist</td><td>Nginx + dist/</td></tr>
+  </table>
+  <p>Benefícios: menos espaço em disco, downloads/deploy mais rápidos, menor superfície de ataque e menos componentes para atualizar.</p>
+</section>
+
+<section id="cicd">
+  <h2>8. CI/CD — Integração e Entrega Contínua</h2>
+  <p>Deploy manual é lento, repetitivo e cheio de erros. CI/CD automatiza essa esteira:</p>
+  <table>
+    <tr><th>Conceito</th><th>O que faz</th><th>Diferença-chave</th></tr>
+    <tr><td><strong>CI</strong> — Continuous Integration</td><td>a cada <code>git push</code>, integra o código e valida: build + testes + lint</td><td>detecta problemas <em>cedo</em></td></tr>
+    <tr><td><strong>Continuous Delivery</strong></td><td>deixa a aplicação sempre pronta para implantar</td><td>deploy em produção depende de <strong>aprovação humana</strong></td></tr>
+    <tr><td><strong>Continuous Deployment</strong></td><td>após passar nos critérios, implanta sozinho</td><td><strong>zero intervenção humana</strong> no deploy</td></tr>
+  </table>
+
+  <h3>Pipeline</h3>
+  <p>É a sequência automatizada de etapas:</p>
+  <p><code>Checkout → Dependências → Build → Testes → Análise → Empacotar → Deploy</code></p>
+  <p>Se qualquer etapa falha, a equipe recebe <strong>feedback rápido</strong> e corrige antes de chegar ao usuário. Uma pipeline não serve só para entregar — ela mede a qualidade de cada alteração.</p>
+
+  <div class="callout">
+    🤖 Automatizar não é "fazer sem pessoas": é transformar tarefas repetitivas e verificáveis (instalar deps, testar, gerar build, publicar imagem, deploy) em processos executados por ferramentas.
+  </div>
+</section>
+
+<section id="actions">
+  <h2>9. GitHub Actions × GitLab CI</h2>
+  <p>Regra mental: <strong>o evento inicia a automação → o pipeline organiza o trabalho → o runner executa.</strong></p>
+
+  <table>
+    <tr><th>Conceito</th><th>GitHub Actions</th><th>GitLab CI/CD</th></tr>
+    <tr><td>Arquivo de config</td><td><code>.github/workflows/ci.yml</code></td><td><code>.gitlab-ci.yml</code> (raiz)</td></tr>
+    <tr><td>Gatilho (evento)</td><td><code>on: push / pull_request / workflow_dispatch</code></td><td><code>rules / workflow</code></td></tr>
+    <tr><td>Unidade de trabalho</td><td>job</td><td>job</td></tr>
+    <tr><td>Fases</td><td>jobs + dependências entre eles</td><td><code>stages:</code> explícitos (test, build, deploy)</td></tr>
+    <tr><td>Executor</td><td>runner (<code>runs-on: ubuntu-latest</code>)</td><td>GitLab Runner</td></tr>
+    <tr><td>Comandos</td><td><code>run:</code></td><td><code>script:</code></td></tr>
+    <tr><td>Ações reutilizáveis</td><td><code>uses:</code></td><td>templates / includes</td></tr>
+  </table>
+
+  <h3>YAML na prática</h3>
+  <p>YAML usa <strong>indentação com espaços</strong> (nunca TAB), pares <code>chave: valor</code> e listas com <code>-</code>. Um erro de indentação quebra o pipeline.</p>
+
+  <p><strong>GitHub Actions:</strong></p>
+  <pre><code>name: Primeiro Pipeline
+on:
+  push:
+    branches: [main]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci
+      - run: npm test</code></pre>
+
+  <p><strong>GitLab CI (equivalente):</strong></p>
+  <pre><code>stages:
+  - test
+  - build
+
+test_app:
+  stage: test
+  image: node:22
+  script:
+    - npm ci
+    - npm test</code></pre>
+
+  <h3>Conceitos importantes</h3>
+  <ul>
+    <li><strong>Events:</strong> gatilhos — <code>push</code>, Pull Request/Merge Request, agendamento, execução manual.</li>
+    <li><strong>Jobs:</strong> unidades de trabalho com seus próprios comandos; podem rodar em ambientes diferentes e depender de outros jobs.</li>
+    <li><strong>Stages:</strong> fases do pipeline (test → build → deploy) que definem a ordem.</li>
+    <li><strong>Runner:</strong> a máquina que executa os comandos — pode ser hospedado pelo GitHub/GitLab ou <em>self-hosted</em> na sua infraestrutura.</li>
+  </ul>
+
+  <h3>Esteira completa</h3>
+  <p><code>git push</code> → CI (build + testes + lint + security scan) → <code>docker build</code> → push para o Registry → deploy → monitoramento.</p>
+</section>
+
+</main>
+
+<footer>
+  DevOps Tools — Resumo para prova · Prof. Renato Sousa Botacim (UVV) · Material de apoio ao estudo
+</footer>
+
+</body>
+</html>
