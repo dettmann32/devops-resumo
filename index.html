@@ -54,6 +54,7 @@
   <a href="#boaspraticas">Boas Práticas</a>
   <a href="#cicd">CI/CD</a>
   <a href="#actions">GitHub Actions × GitLab CI</a>
+  <a href="#quiz">📝 Quiz</a>
 </nav>
 
 <main>
@@ -400,11 +401,97 @@ test_app:
   <p><code>git push</code> → CI (build + testes + lint + security scan) → <code>docker build</code> → push para o Registry → deploy → monitoramento.</p>
 </section>
 
+<section id="quiz">
+  <h2>10. 📝 Quiz — Teste seus conhecimentos</h2>
+  <p>Responda às perguntas e receba feedback imediato. No final, veja sua pontuação!</p>
+  <div id="quiz-container"></div>
+  <div style="margin-top:1rem">
+    <button onclick="corrigirQuiz()" style="background:#38bdf8;color:#0f172a;border:none;padding:.7rem 1.5rem;border-radius:8px;font-weight:bold;cursor:pointer;font-size:1rem">Corrigir quiz</button>
+    <button onclick="resetarQuiz()" style="background:#334155;color:#e2e8f0;border:none;padding:.7rem 1.5rem;border-radius:8px;font-weight:bold;cursor:pointer;font-size:1rem;margin-left:.5rem">Recomeçar</button>
+  </div>
+  <div id="quiz-resultado" style="margin-top:1.5rem;font-size:1.2rem;font-weight:bold"></div>
+</section>
+
 </main>
 
 <footer>
   DevOps Tools — Resumo para prova · Prof. Renato Sousa Botacim (UVV) · Material de apoio ao estudo
 </footer>
+
+<style>
+  .q { background:#0b1220; border:1px solid var(--border); border-radius:8px; padding:1rem; margin-bottom:1rem; }
+  .q p { font-weight:bold; margin-bottom:.5rem; }
+  .q label { display:block; padding:.3rem .5rem; border-radius:6px; cursor:pointer; }
+  .q label:hover { background:#1e293b; }
+  .certa { background:#14532d !important; }
+  .errada { background:#7f1d1d !important; }
+  .feedback { margin-top:.5rem; font-size:.9rem; color:#94a3b8; }
+</style>
+
+<script>
+const perguntas = [
+  { p: "DevOps significa:", ops: ["Apenas usar Docker", "Development + Operations, unindo cultura, processos e automação", "Um cargo de desenvolvedor que opera servidores", "Uma ferramenta de controle de versão"], r: 1, exp: "DevOps = Desenvolvimento + Operações, uma abordagem com cultura, colaboração, automação e feedback contínuo." },
+  { p: "O problema dos 'silos' refere-se a:", ops: ["Armazenar dados em bancos NoSQL", "Equipes trabalhando de forma isolada, com objetivos e processos diferentes", "Uso de múltiplos containers", "Falta de internet no servidor"], r: 1, exp: "Silos = dev, QA, ops e segurança isolados, gerando retrabalho e o famoso 'funciona na minha máquina'." },
+  { p: "Qual comando envia alterações locais para o repositório remoto?", ops: ["git pull", "git clone", "git push", "git status"], r: 2, exp: "git push envia commits locais para o remoto; git pull traz alterações; git clone baixa o repositório." },
+  { p: "O que é um commit?", ops: ["Um erro no código", "Um checkpoint/registro coerente de alterações no histórico", "Uma branch de teste", "Um repositório remoto"], r: 1, exp: "Commit é um checkpoint do projeto, com mensagem clara do que foi alterado." },
+  { p: "No Git Flow, qual branch contém o código pronto para produção?", ops: ["develop", "feature/login", "main", "hotfix/bug"], r: 2, exp: "main representa a linha estável e publicável; develop é a integração do desenvolvimento." },
+  { p: "Para que serve uma branch hotfix/*?", ops: ["Criar nova funcionalidade", "Preparar uma release", "Corrigir urgentemente um bug em produção", "Testar código experimental"], r: 2, exp: "Hotfix parte de main, corrige o problema crítico e é integrada em main e develop." },
+  { p: "No Dockerfile, RUN:", ops: ["Executa quando o container inicia", "Executa durante o build da imagem", "Publica a porta do container", "Define a imagem base"], r: 1, exp: "RUN roda no build; CMD é o comando padrão na execução do container." },
+  { p: "EXPOSE 3000 no Dockerfile:", ops: ["Publica automaticamente a porta 3000", "Documenta a porta usada pela aplicação", "Bloqueia a porta 3000", "Define a porta do host"], r: 1, exp: "EXPOSE só documenta. A publicação real é com docker run -p portaHost:portaContainer." },
+  { p: "Qual a diferença entre volume Docker e bind mount?", ops: ["Nenhuma", "Volume é gerenciado pelo Docker (produção); bind mount aponta para um caminho do host (desenvolvimento)", "Bind mount é mais seguro", "Volume apaga os dados ao reiniciar"], r: 1, exp: "Volumes são ideais para dados persistentes; bind mounts mapeiam pastas do host, ótimos para dev." },
+  { p: "No Docker Compose, depends_on:", ops: ["Garante que o serviço dependente está pronto para conexões", "Apenas ordena a inicialização dos serviços", "Cria a rede entre serviços", "Publica as portas"], r: 1, exp: "depends_on só controla a ordem de subida. Para garantir prontidão, use healthchecks e retry." },
+  { p: "Contêineres na mesma rede Docker se comunicam usando:", ops: ["localhost", "O nome do serviço (DNS interno)", "Apenas IPs fixos", "USB compartilhado"], r: 1, exp: "Na mesma rede, use o nome do serviço como hostname, ex.: DB_HOST=database." },
+  { p: "Multi-stage build serve para:", ops: ["Executar vários containers ao mesmo tempo", "Separar o ambiente de build do ambiente de execução, gerando imagens menores", "Criar múltiplas redes", "Fazer backup dos volumes"], r: 1, exp: "Build pesado em um stage; copiar só o resultado para uma imagem leve de produção." },
+  { p: "Qual a principal diferença entre Continuous Delivery e Continuous Deployment?", ops: ["Delivery não tem testes", "Delivery exige aprovação humana para implantar; Deployment implanta automaticamente", "Deployment não usa Docker", "Não há diferença"], r: 1, exp: "Delivery: pronto para entregar, com aprovação. Deployment: deploy automático após validação." },
+  { p: "No GitHub Actions, o executor dos jobs é:", ops: ["O stage", "O runner", "O webhook", "O Docker Hub"], r: 1, exp: "Runner é a máquina/ambiente que executa os comandos do job (runs-on: ubuntu-latest)." },
+  { p: "Onde fica a configuração de CI no GitLab?", ops: [".github/workflows/ci.yml", ".gitlab-ci.yml na raiz do projeto", "docker-compose.yml", "package.json"], r: 1, exp: "GitLab usa .gitlab-ci.yml; GitHub Actions usa arquivos YAML em .github/workflows/." },
+  { p: "Para aproveitar melhor o cache do Docker no build:", ops: ["Copiar todo o código antes de instalar dependências", "Copiar package*.json, instalar deps, e só depois copiar o código", "Usar sempre latest", "Evitar COPY"], r: 1, exp: "Camadas que mudam pouco devem vir antes das que mudam muito." },
+  { p: "É uma boa prática de segurança:", ops: ["Colocar senhas no Dockerfile", "Não commitar secrets no Git e não embutir .env na imagem", "Rodar tudo como root", "Usar imagens sem versão"], r: 1, exp: "Segredos devem vir de variáveis de ambiente em runtime ou mecanismos de secrets." },
+  { p: "O que dispara um workflow no GitHub Actions por padrão?", ops: ["Apenas clique manual", "Eventos como push, pull_request ou agendamento", "Somente quando o Docker falha", "Nada dispara automaticamente"], r: 1, exp: "Events são os gatilhos: push, pull_request, workflow_dispatch, schedule, etc." }
+];
+
+function renderQuiz() {
+  const c = document.getElementById('quiz-container');
+  c.innerHTML = perguntas.map((q, i) => `
+    <div class="q" id="q${i}">
+      <p>${i + 1}. ${q.p}</p>
+      ${q.ops.map((o, j) => `<label><input type="radio" name="q${i}" value="${j}"> ${o}</label>`).join('')}
+      <div class="feedback" id="f${i}" style="display:none"></div>
+    </div>`).join('');
+}
+
+function corrigirQuiz() {
+  let acertos = 0;
+  perguntas.forEach((q, i) => {
+    const sel = document.querySelector(`input[name="q${i}"]:checked`);
+    const labels = document.querySelectorAll(`#q${i} label`);
+    labels.forEach(l => l.classList.remove('certa', 'errada'));
+    const f = document.getElementById('f' + i);
+    f.style.display = 'block';
+    if (sel && parseInt(sel.value) === q.r) {
+      acertos++;
+      labels[parseInt(sel.value)].classList.add('certa');
+      f.textContent = '✅ Correto! ' + q.exp;
+    } else {
+      labels[q.r].classList.add('certa');
+      if (sel) labels[parseInt(sel.value)].classList.add('errada');
+      f.textContent = '❌ Resposta correta: "' + q.ops[q.r] + '". ' + q.exp;
+    }
+  });
+  const pct = Math.round(acertos / perguntas.length * 100);
+  document.getElementById('quiz-resultado').innerHTML =
+    `Você acertou ${acertos} de ${perguntas.length} (${pct}%). ` +
+    (pct >= 80 ? '🎉 Excelente, pronto para a prova!' : pct >= 50 ? '👍 Bom, revise os tópicos que errou.' : '📚 Estude mais um pouco e tente de novo!');
+  document.getElementById('quiz-resultado').scrollIntoView({ behavior: 'smooth' });
+}
+
+function resetarQuiz() {
+  renderQuiz();
+  document.getElementById('quiz-resultado').innerHTML = '';
+}
+
+renderQuiz();
+</script>
 
 </body>
 </html>
