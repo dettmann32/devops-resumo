@@ -404,6 +404,10 @@ test_app:
 <section id="quiz">
   <h2>10. 📝 Quiz — Teste seus conhecimentos</h2>
   <p>Responda às perguntas e receba feedback imediato. No final, veja sua pontuação!</p>
+  <div style="margin-bottom:1.2rem">
+    <button id="btn-facil" onclick="setModo('facil')" style="background:#065f46;color:#d1fae5;border:none;padding:.6rem 1.4rem;border-radius:8px;font-weight:bold;cursor:pointer">🟢 Modo Fácil</button>
+    <button id="btn-dificil" onclick="setModo('dificil')" style="background:#831843;color:#fce7f3;border:none;padding:.6rem 1.4rem;border-radius:8px;font-weight:bold;cursor:pointer;margin-left:.5rem">🔴 Modo Difícil</button>
+  </div>
   <div id="quiz-container"></div>
   <div style="margin-top:1rem">
     <button onclick="corrigirQuiz()" style="background:#38bdf8;color:#0f172a;border:none;padding:.7rem 1.5rem;border-radius:8px;font-weight:bold;cursor:pointer;font-size:1rem">Corrigir quiz</button>
@@ -450,7 +454,35 @@ const perguntas = [
   { p: "O que dispara um workflow no GitHub Actions por padrão?", ops: ["Apenas clique manual", "Eventos como push, pull_request ou agendamento", "Somente quando o Docker falha", "Nada dispara automaticamente"], r: 1, exp: "Events são os gatilhos: push, pull_request, workflow_dispatch, schedule, etc." }
 ];
 
+const perguntasFacil = perguntas.slice();
+
+const perguntasDificil = [
+  { p: "Por que o próprio Docker não garante que um serviço dependente esteja 'pronto' apenas com depends_on?", ops: ["Porque depends_on só verifica a ordem de criação dos containers, não o estado real da aplicação", "Porque depends_on apaga o container dependente", "Porque depende da tag latest", "Porque depends_on só funciona com volumes"], r: 0, exp: "depends_on apenas ordena a inicialização; o banco pode subir mas ainda estar indisponível. A solução é healthcheck + retry na aplicação." },
+  { p: "Se uma camada intermediária de um Dockerfile é alterada, o que acontece com as camadas seguintes no cache?", ops: ["São reutilizadas normalmente", "São invalidadas e reconstruídas, pois toda camada depende da anterior", "São apagadas mas não reconstruídas", "Nada, pois o cache ignora alterações"], r: 1, exp: "O cache do Docker é encadeado: alterou uma camada, todas as seguintes são refeitas. Por isso dependências vêm antes do código." },
+  { p: "Em multi-stage builds, o que acontece com os estágios intermediários na imagem final?", ops: ["São mantidos como camadas ocultas", "São descartados — apenas o que é explicitamente copiado com COPY --from chega à imagem final", "São executados em runtime", "Viram volumes anônimos"], r: 1, exp: "Os stages de build servem só para gerar artefatos. Somente o que você copia explicitamente para o stage final compõe a imagem." },
+  { p: "O que significa dizer que o Git é um DVCS (sistema distribuído)?", ops: ["Que precisa de internet para todo commit", "Que cada desenvolvedor possui o histórico completo do repositório em sua máquina", "Que só pode haver um repositório remoto", "Que branches não podem ser mescladas"], r: 1, exp: "Distribuído = cada clone local contém todo o histórico, permitindo trabalho offline e maior resiliência." },
+  { p: "No Git Flow, por que as alterações de uma release são integradas tanto em main quanto em develop?", ops: ["Para duplicar o código por segurança", "Porque as correções feitas durante a estabilização precisam voltar ao desenvolvimento para não se perderem", "Porque main e develop são iguais", "Para gerar dois tags diferentes"], r: 1, exp: "Os ajustes finais da release/1.2.0 precisam estar também em develop, senão a próxima feature partiria de código desatualizado." },
+  { p: "Qual o risco de fazer COPY . . antes de instalar dependências no Dockerfile?", ops: ["Nenhum risco técnico", "Qualquer mudança no código invalida a camada de instalação de dependências, desperdiçando cache e tempo de build", "O container não inicia", "O EXPOSE deixa de funcionar"], r: 1, exp: "Camadas mudam o cache em cadeia: ao copiar tudo antes, qualquer alteração no código força reinstalar dependências." },
+  { p: "Por que usar variáveis de ambiente com -e ou --env-file em vez de chaves no Dockerfile é mais seguro?", ops: ["Porque variáveis de ambiente não aparecem na imagem nem no histórico de camadas do Dockerfile", "Porque são mais rápidas", "Porque ocupam menos memória", "Porque evitam usar portas"], r: 1, exp: "ENV no Dockerfile fica gravado na imagem e pode vazar via docker history. Em runtime, os segredos não entram na imagem." },
+  { p: "Qual a diferença fundamental entre merge e rebase no Git?", ops: ["Merge preserva o histórico de ramificação criando um commit de merge; rebase reescreve os commits sobre a base, criando um histórico linear", "Rebase é sempre mais lento", "Merge apaga a branch", "Não há diferença"], r: 1, exp: "Merge junta preservando a topologia; rebase 'reaplica' commits sobre outra base, linearizando o histórico (e reescrevendo hashes)." },
+  { p: "Em CI/CD, qual a diferença prática entre Continuous Delivery e Continuous Deployment?", ops: ["Nenhuma", "No Delivery a promoção para produção é manual/aprovada; no Deployment todo merge validado vai automaticamente para produção", "Delivery não tem pipeline", "Deployment não tem testes"], r: 1, exp: "Delivery mantém a aplicação sempre implantável sob demanda; Deployment remove a aprovação humana." },
+  { p: "Por que é mais recomendável referenciar serviços pelo nome (DB_HOST=database) do que por IP fixo no Docker?", ops: ["IPs de containers podem mudar a cada recriação; o DNS interno do Docker resolve o nome do serviço/container na rede", "Porque IP fixo é proibido no Docker", "Porque o nome é mais curto", "Porque o IP não funciona entre containers"], r: 1, exp: "Cada container recebe IP dinâmico; a rede do Docker provê DNS interno que mapeia nomes de serviços para IPs atuais." },
+  { p: "O que acontece com os dados de um container se não usarmos volumes?", ops: ["São mantidos para sempre em um cache global", "São perdidos quando o container é removido", "São automaticamente enviados para o Docker Hub", "Ficam salvos no Dockerfile"], r: 1, exp: "O filesystem do container é efêmero. Somente volumes/bind mounts persistem dados além do ciclo de vida do container." },
+  { p: "No GitHub Actions, qual é o papel da chave 'uses' em um step?", ops: ["Executar um comando shell", "Reutilizar uma action pronta da comunidade/oficial (ex.: actions/checkout)", "Definir variáveis de ambiente", "Publicar artefatos no Docker Hub"], r: 1, exp: "uses: instancia uma action reutilizável; run: executa comandos shell diretamente." },
+  { p: "Em um pipeline, falhar rápido (fail fast) é desejável porque:", ops: ["Evita desperdiçar minutos de execução e dá feedback mais cedo ao desenvolvedor", "Acelera o deploy para produção", "Reduz o tamanho da imagem", "Evita conflitos de merge"], r: 1, exp: "Detectar o erro na etapa mais barata possível (testes antes de build, build antes de deploy) economiza tempo e dá feedback rápido." },
+  { p: "Qual a principal vantagem de rodar a aplicação com usuário não-root dentro do container?", ops: ["Se o container for comprometido, o atacante não terá privilégios de root dentro dele, reduzindo o impacto", "Melhora a performance", "A imagem fica menor", "Permite usar mais portas"], r: 1, exp: "Mínimo privilégio: limita o que um processo comprometido consegue fazer dentro do container." },
+  { p: "Por que uma imagem base Alpine nem sempre é a melhor escolha?", ops: ["Porque Alpine não funciona no Docker", "Porque usa musl libc, e algumas dependências/bibliotecas podem ter incompatibilidade ou comportamento diferente de glibc", "Porque Alpine é pago", "Porque Alpine só roda em ARM"], r: 1, exp: "Alpine reduz tamanho, mas troca glibc por musl — pode quebrar binários pré-compilados e dependências nativas." },
+  { p: "O que é um merge conflict e por que ele ocorre?", ops: ["Erro de sintaxe no código", "Quando duas branches alteram a mesma região de um arquivo de formas incompatíveis e o Git não consegue decidir sozinho", "Quando a branch não existe", "Quando o push é negado pelo remoto"], r: 1, exp: "Conflito acontece em alterações sobrepostas; o desenvolvedor analisa e decide manualmente o conteúdo final." },
+  { p: "Qual a função do arquivo .dockerignore?", ops: ["Impedir que arquivos sejam incluídos no contexto de build enviado ao daemon, reduzindo tamanho e evitando vazamento de dados sensíveis", "Ignorar erros de compilação", "Esconder camadas da imagem", "Bloquear portas do host"], r: 1, exp: "Sem .dockerignore, COPY . . pode copiar .env, .git e node_modules para a imagem — risco de segurança e imagem inchada." },
+  { p: "Por que é importante que o stage final de uma imagem de produção não contenha o código-fonte nem ferramentas de build?", ops: ["Por redução de tamanho, menor superfície de ataque e menos dependências para manter/atualizar", "Porque o Docker proíbe source code em imagens", "Para a imagem ser colorida", "Para usar menos CPU em runtime"], r: 1, exp: "Imagem enxuta = menos vulnerabilidades, pulls mais rápidos e menor custo de manutenção." },
+  { p: "Em GitLab CI, o que a seção 'stages' define?", ops: ["O usuário que executa o pipeline", "A ordem das fases (test, build, deploy) em que os jobs são organizados e executados", "As variáveis de ambiente", "O tipo de imagem"], r: 1, exp: "Stages agrupam jobs por fase; jobs do mesmo stage rodam em paralelo, e um stage só começa após o anterior passar." },
+  { p: "O que torna o feedback de uma pipeline de CI valioso para a equipe?", ops: ["O fato de gerar relatórios bonitos", "A rapidez: o intervalo entre introduzir um problema e saber dele é mínimo, reduzindo custo de correção", "O uso de containers", "A quantidade de etapas"], r: 1, exp: "Quanto mais cedo o erro é detectado, mais barato é corrigi-lo — a pipeline dá esse sinal em minutos, não em dias." }
+];
+
+let modoAtual = 'facil';
+
 function renderQuiz() {
+  const perguntas = modoAtual === 'facil' ? perguntasFacil : perguntasDificil;
   const c = document.getElementById('quiz-container');
   c.innerHTML = perguntas.map((q, i) => `
     <div class="q" id="q${i}">
@@ -460,7 +492,16 @@ function renderQuiz() {
     </div>`).join('');
 }
 
+function setModo(modo) {
+  modoAtual = modo;
+  document.getElementById('btn-facil').style.outline = modo === 'facil' ? '3px solid #38bdf8' : 'none';
+  document.getElementById('btn-dificil').style.outline = modo === 'dificil' ? '3px solid #f472b6' : 'none';
+  renderQuiz();
+  document.getElementById('quiz-resultado').innerHTML = '';
+}
+
 function corrigirQuiz() {
+  const perguntas = modoAtual === 'facil' ? perguntasFacil : perguntasDificil;
   let acertos = 0;
   perguntas.forEach((q, i) => {
     const sel = document.querySelector(`input[name="q${i}"]:checked`);
@@ -490,7 +531,7 @@ function resetarQuiz() {
   document.getElementById('quiz-resultado').innerHTML = '';
 }
 
-renderQuiz();
+setModo('facil');
 </script>
 
 </body>
